@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple Accordion
  * Description: A lightweight, accessible accordion managed from a simple admin table and rendered with the [simple_accordion] shortcode.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: kimbrasil
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -13,16 +13,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SIMPLE_ACCORDION_VERSION', '1.0.0' );
+define( 'SIMPLE_ACCORDION_VERSION', '1.0.1' );
 define( 'SIMPLE_ACCORDION_FILE', __FILE__ );
 define( 'SIMPLE_ACCORDION_URL', plugin_dir_url( __FILE__ ) );
 define( 'SIMPLE_ACCORDION_OPTION', 'simple_accordion_items' );
 
-/**
- * Return the saved accordion items in a predictable format.
- *
- * @return array<int, array{title:string,content:string,open:bool,order:int}>
- */
 function simple_accordion_get_items() {
 	$items = get_option( SIMPLE_ACCORDION_OPTION, array() );
 
@@ -63,9 +58,6 @@ function simple_accordion_get_items() {
 	return $items;
 }
 
-/**
- * Register the admin menu.
- */
 function simple_accordion_admin_menu() {
 	add_menu_page(
 		__( 'Simple Accordion', 'simple-accordion' ),
@@ -79,9 +71,6 @@ function simple_accordion_admin_menu() {
 }
 add_action( 'admin_menu', 'simple_accordion_admin_menu' );
 
-/**
- * Load admin assets only on this plugin's page.
- */
 function simple_accordion_admin_assets( $hook ) {
 	if ( 'toplevel_page_simple-accordion' !== $hook ) {
 		return;
@@ -96,9 +85,6 @@ function simple_accordion_admin_assets( $hook ) {
 }
 add_action( 'admin_enqueue_scripts', 'simple_accordion_admin_assets' );
 
-/**
- * Save the admin form.
- */
 function simple_accordion_save_items() {
 	if ( ! isset( $_POST['simple_accordion_save'] ) ) {
 		return;
@@ -155,9 +141,6 @@ function simple_accordion_save_items() {
 	);
 }
 
-/**
- * Render the admin page.
- */
 function simple_accordion_render_admin_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( esc_html__( 'You do not have permission to access this page.', 'simple-accordion' ) );
@@ -260,9 +243,6 @@ function simple_accordion_render_admin_page() {
 	<?php
 }
 
-/**
- * Enqueue frontend assets only when the shortcode is rendered.
- */
 function simple_accordion_enqueue_frontend_assets() {
 	wp_enqueue_style(
 		'simple-accordion-frontend',
@@ -280,16 +260,10 @@ function simple_accordion_enqueue_frontend_assets() {
 	);
 }
 
-/**
- * Render the frontend accordion.
- *
- * @param array<string, string> $atts Shortcode attributes.
- * @return string
- */
 function simple_accordion_shortcode( $atts ) {
 	$atts = shortcode_atts(
 		array(
-			'title' => 'SEDES E CONTATOS',
+			'title' => '',
 		),
 		$atts,
 		'simple_accordion'
@@ -305,8 +279,6 @@ function simple_accordion_shortcode( $atts ) {
 
 	$instance_id = wp_unique_id( 'simple-accordion-' );
 	$output      = '<section class="simple-accordion" id="' . esc_attr( $instance_id ) . '">';
-	$output     .= '<h2 class="simple-accordion__title">' . esc_html( $atts['title'] ) . '</h2>';
-	$output     .= '<div class="simple-accordion__rule" aria-hidden="true"></div>';
 
 	foreach ( $items as $index => $item ) {
 		$is_open  = ! empty( $item['open'] );
@@ -315,7 +287,7 @@ function simple_accordion_shortcode( $atts ) {
 		$classes  = 'simple-accordion__item' . ( $is_open ? ' is-open' : '' );
 
 		$output .= '<div class="' . esc_attr( $classes ) . '">';
-		$output .= '<button type="button" class="simple-accordion__button" aria-expanded="' . ( $is_open ? 'true' : 'false' ) . '" aria-controls="' . esc_attr( $panel_id ) . '">';
+		$output .= '<button id="' . esc_attr( $item_id ) . '" type="button" class="simple-accordion__button" aria-expanded="' . ( $is_open ? 'true' : 'false' ) . '" aria-controls="' . esc_attr( $panel_id ) . '">';
 		$output .= '<span class="simple-accordion__icon" aria-hidden="true">' . ( $is_open ? '−' : '+' ) . '</span>';
 		$output .= '<span class="simple-accordion__label">' . esc_html( $item['title'] ) . '</span>';
 		$output .= '</button>';
