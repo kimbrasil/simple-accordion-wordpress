@@ -1,0 +1,82 @@
+.simple-accordion-admin {
+    max-width: 1200px;
+}
+
+.simple-accordion-admin h1 {
+    margin-bottom: 8px;
+}
+
+.simple-accordion-table {
+    margin-top: 20px;
+}
+
+.simple-accordion-table th,
+.simple-accordion-table td {
+    vertical-align: top;
+}
+
+.simple-accordion-table input[type="text"],
+.simple-accordion-table textarea {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.simple-accordion-table textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.simple-accordion-order {
+    width: 75px;
+}
+
+.simple-accordion-open {
+    width: 70px;
+    text-align: center;
+}
+
+.simple-accordion-actions {
+    width: 90px;
+    white-space: nowrap;
+}
+
+.simple-accordion-shortcode-help {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+}
+
+@media screen and (max-width: 782px) {
+    .simple-accordion-table thead {
+        display: none;
+    }
+
+    .simple-accordion-table,
+    .simple-accordion-table tbody,
+    .simple-accordion-table tr,
+    .simple-accordion-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .simple-accordion-table tr {
+        margin-bottom: 16px;
+        padding: 10px;
+        border: 1px solid #dcdcde;
+        background: #fff;
+    }
+
+    .simple-accordion-table td {
+        box-sizing: border-box;
+        padding: 8px 0;
+    }
+
+    .simple-accordion-open {
+        text-align: left;
+    }
+}
