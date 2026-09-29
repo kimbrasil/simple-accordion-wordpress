@@ -2,10 +2,11 @@
 /**
  * Plugin Name: Simple Accordion
  * Description: A lightweight, accessible accordion managed from a simple admin table and rendered with the [simple_accordion] shortcode.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: kimbrasil
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Update URI: https://github.com/kimbrasil/simple-accordion-wordpress
  * Text Domain: simple-accordion
  */
 
@@ -13,11 +14,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SIMPLE_ACCORDION_VERSION', '1.0.1' );
+define( 'SIMPLE_ACCORDION_VERSION', '1.0.2' );
 define( 'SIMPLE_ACCORDION_FILE', __FILE__ );
+define( 'SIMPLE_ACCORDION_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SIMPLE_ACCORDION_URL', plugin_dir_url( __FILE__ ) );
 define( 'SIMPLE_ACCORDION_OPTION', 'simple_accordion_items' );
+define( 'SIMPLE_ACCORDION_GITHUB_REPOSITORY', 'kimbrasil/simple-accordion-wordpress' );
+define( 'SIMPLE_ACCORDION_GITHUB_API_URL', 'https://api.github.com/repos/' . SIMPLE_ACCORDION_GITHUB_REPOSITORY . '/releases/latest' );
+define( 'SIMPLE_ACCORDION_UPDATE_URI', 'https://github.com/' . SIMPLE_ACCORDION_GITHUB_REPOSITORY );
 
+/**
+ * Return the saved accordion items in a predictable format.
+ *
+ * @return array<int, array{title:string,content:string,open:bool,order:int}>
+ */
 function simple_accordion_get_items() {
 	$items = get_option( SIMPLE_ACCORDION_OPTION, array() );
 
@@ -57,6 +67,143 @@ function simple_accordion_get_items() {
 
 	return $items;
 }
+
+/**
+ * Request the latest GitHub release metadata.
+ *
+ * The release must include a ZIP asset named simple-accordion.zip. This is the
+ * package WordPress downloads during an automatic update.
+ *
+ * @return object|null
+ */
+function simple_accordion_get_latest_release() {
+	$cached = get_site_transient( 'simple_accordion_latest_release' );
+
+	if ( false !== $cached ) {
+		return $cached;
+	}
+
+	$response = wp_remote_get(
+		SIMPLE_ACCORDION_GITHUB_API_URL,
+		array(
+			'timeout' => 10,
+			'headers' => array(
+				'Accept'     => 'application/vnd.github+json',
+				'User-Agent' => 'WordPress Simple Accordion updater',
+			),
+		)
+	);
+
+	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		return null;
+	}
+
+	$release = json_decode( wp_remote_retrieve_body( $response ) );
+
+	if ( ! is_object( $release ) || empty( $release->tag_name ) ) {
+		return null;
+	}
+
+	set_site_transient( 'simple_accordion_latest_release', $release, 12 * HOUR_IN_SECONDS );
+
+	return $release;
+}
+
+/**
+ * Add a GitHub release to WordPress plugin updates.
+ *
+ * @param object $transient WordPress update transient.
+ * @return object
+ */
+function simple_accordion_check_for_updates( $transient ) {
+	if ( empty( $transient->checked ) || ! is_object( $transient ) ) {
+		return $transient;
+	}
+
+	$release = simple_accordion_get_latest_release();
+
+	if ( ! $release ) {
+		return $transient;
+	}
+
+	$version = ltrim( (string) $release->tag_name, 'vV' );
+
+	if ( version_compare( $version, SIMPLE_ACCORDION_VERSION, '<=' ) ) {
+		return $transient;
+	}
+
+	$package = '';
+
+	if ( ! empty( $release->assets ) && is_array( $release->assets ) ) {
+		foreach ( $release->assets as $asset ) {
+			if ( ! empty( $asset->name ) && 'simple-accordion.zip' === $asset->name && ! empty( $asset->browser_download_url ) ) {
+				$package = $asset->browser_download_url;
+				break;
+			}
+		}
+	}
+
+	if ( '' === $package ) {
+		return $transient;
+	}
+
+	$transient->response[ SIMPLE_ACCORDION_BASENAME ] = (object) array(
+		'slug'        => 'simple-accordion',
+		'plugin'      => SIMPLE_ACCORDION_BASENAME,
+		'new_version' => $version,
+		'url'         => SIMPLE_ACCORDION_UPDATE_URI,
+		'package'     => $package,
+	);
+
+	return $transient;
+}
+add_filter( 'site_transient_update_plugins', 'simple_accordion_check_for_updates' );
+
+/**
+ * Provide plugin information in the WordPress updates modal.
+ *
+ * @param false|object|array $result Existing result.
+ * @param string             $action API action.
+ * @param object             $args    API arguments.
+ * @return false|object
+ */
+function simple_accordion_plugin_info( $result, $action, $args ) {
+	if ( 'plugin_information' !== $action || empty( $args->slug ) || 'simple-accordion' !== $args->slug ) {
+		return $result;
+	}
+
+	$release = simple_accordion_get_latest_release();
+
+	if ( ! $release ) {
+		return $result;
+	}
+
+	$version = ltrim( (string) $release->tag_name, 'vV' );
+	$package = '';
+
+	if ( ! empty( $release->assets ) && is_array( $release->assets ) ) {
+		foreach ( $release->assets as $asset ) {
+			if ( ! empty( $asset->name ) && 'simple-accordion.zip' === $asset->name && ! empty( $asset->browser_download_url ) ) {
+				$package = $asset->browser_download_url;
+				break;
+			}
+		}
+	}
+
+	return (object) array(
+		'name'          => 'Simple Accordion',
+		'slug'          => 'simple-accordion',
+		'version'       => $version,
+		'author'        => '<a href="https://github.com/kimbrasil">kimbrasil</a>',
+		'homepage'      => SIMPLE_ACCORDION_UPDATE_URI,
+		'download_link' => $package,
+		'requires'      => '5.8',
+		'tested'        => '6.8',
+		' sections'     => array(),
+		'description'   => ! empty( $release->body ) ? wpautop( wp_kses_post( $release->body ) ) : 'Simple Accordion plugin updates from GitHub.',
+	);
+}
+add_filter( 'plugins_api_result', 'simple_accordion_plugin_info', 10, 3 );
 
 function simple_accordion_admin_menu() {
 	add_menu_page(
@@ -171,39 +318,20 @@ function simple_accordion_render_admin_page() {
 				<tbody id="simple-accordion-rows">
 					<?php foreach ( $items as $index => $item ) : ?>
 						<tr>
-							<td>
-								<input type="number" min="1" class="small-text" name="items[<?php echo esc_attr( $index ); ?>][order]" value="<?php echo esc_attr( $item['order'] ); ?>">
-							</td>
-							<td>
-								<input type="text" class="regular-text" name="items[<?php echo esc_attr( $index ); ?>][title]" value="<?php echo esc_attr( $item['title'] ); ?>" placeholder="<?php echo esc_attr__( 'Accordion title', 'simple-accordion' ); ?>">
-							</td>
-							<td>
-								<textarea name="items[<?php echo esc_attr( $index ); ?>][content]" rows="4" placeholder="<?php echo esc_attr__( 'Text or safe HTML content', 'simple-accordion' ); ?>"><?php echo esc_textarea( $item['content'] ); ?></textarea>
-							</td>
-							<td class="simple-accordion-open">
-								<label>
-									<input type="checkbox" name="items[<?php echo esc_attr( $index ); ?>][open]" value="1" <?php checked( $item['open'] ); ?>>
-									<span class="screen-reader-text"><?php echo esc_html__( 'Open by default', 'simple-accordion' ); ?></span>
-								</label>
-							</td>
-							<td class="simple-accordion-actions">
-								<button type="button" class="button-link-delete simple-accordion-remove"><?php echo esc_html__( 'Remove', 'simple-accordion' ); ?></button>
-							</td>
+							<td><input type="number" min="1" class="small-text" name="items[<?php echo esc_attr( $index ); ?>][order]" value="<?php echo esc_attr( $item['order'] ); ?>"></td>
+							<td><input type="text" class="regular-text" name="items[<?php echo esc_attr( $index ); ?>][title]" value="<?php echo esc_attr( $item['title'] ); ?>" placeholder="<?php echo esc_attr__( 'Accordion title', 'simple-accordion' ); ?>"></td>
+							<td><textarea name="items[<?php echo esc_attr( $index ); ?>][content]" rows="4" placeholder="<?php echo esc_attr__( 'Text or safe HTML content', 'simple-accordion' ); ?>"><?php echo esc_textarea( $item['content'] ); ?></textarea></td>
+							<td class="simple-accordion-open"><label><input type="checkbox" name="items[<?php echo esc_attr( $index ); ?>][open]" value="1" <?php checked( $item['open'] ); ?>><span class="screen-reader-text"><?php echo esc_html__( 'Open by default', 'simple-accordion' ); ?></span></label></td>
+							<td class="simple-accordion-actions"><button type="button" class="button-link-delete simple-accordion-remove"><?php echo esc_html__( 'Remove', 'simple-accordion' ); ?></button></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>
 			</table>
 
-			<p>
-				<button type="button" class="button" id="simple-accordion-add"><?php echo esc_html__( 'Add item', 'simple-accordion' ); ?></button>
-				<input type="submit" name="simple_accordion_save" class="button button-primary" value="<?php echo esc_attr__( 'Save accordions', 'simple-accordion' ); ?>">
-			</p>
+			<p><button type="button" class="button" id="simple-accordion-add"><?php echo esc_html__( 'Add item', 'simple-accordion' ); ?></button> <input type="submit" name="simple_accordion_save" class="button button-primary" value="<?php echo esc_attr__( 'Save accordions', 'simple-accordion' ); ?>"></p>
 		</form>
 
-		<div class="simple-accordion-shortcode-help">
-			<strong><?php echo esc_html__( 'Shortcode:', 'simple-accordion' ); ?></strong>
-			<code>[simple_accordion]</code>
-		</div>
+		<div class="simple-accordion-shortcode-help"><strong><?php echo esc_html__( 'Shortcode:', 'simple-accordion' ); ?></strong> <code>[simple_accordion]</code></div>
 	</div>
 
 	<script>
@@ -211,32 +339,17 @@ function simple_accordion_render_admin_page() {
 		var addButton = document.getElementById('simple-accordion-add');
 		var rows = document.getElementById('simple-accordion-rows');
 		var index = rows ? rows.children.length : 0;
-
-		if (!addButton || !rows) {
-			return;
-		}
-
+		if (!addButton || !rows) return;
 		addButton.addEventListener('click', function () {
 			var row = document.createElement('tr');
-			row.innerHTML =
-				'<td><input type="number" min="1" class="small-text" name="items[' + index + '][order]" value="' + (index + 1) + '"></td>' +
-				'<td><input type="text" class="regular-text" name="items[' + index + '][title]" placeholder="Accordion title"></td>' +
-				'<td><textarea name="items[' + index + '][content]" rows="4" placeholder="Text or safe HTML content"></textarea></td>' +
-				'<td class="simple-accordion-open"><label><input type="checkbox" name="items[' + index + '][open]" value="1"><span class="screen-reader-text">Open by default</span></label></td>' +
-				'<td class="simple-accordion-actions"><button type="button" class="button-link-delete simple-accordion-remove">Remove</button></td>';
+			row.innerHTML = '<td><input type="number" min="1" class="small-text" name="items[' + index + '][order]" value="' + (index + 1) + '"></td><td><input type="text" class="regular-text" name="items[' + index + '][title]" placeholder="Accordion title"></td><td><textarea name="items[' + index + '][content]" rows="4" placeholder="Text or safe HTML content"></textarea></td><td class="simple-accordion-open"><label><input type="checkbox" name="items[' + index + '][open]" value="1"><span class="screen-reader-text">Open by default</span></label></td><td class="simple-accordion-actions"><button type="button" class="button-link-delete simple-accordion-remove">Remove</button></td>';
 			rows.appendChild(row);
 			index += 1;
 		});
-
 		rows.addEventListener('click', function (event) {
-			if (!event.target.classList.contains('simple-accordion-remove')) {
-				return;
-			}
-
+			if (!event.target.classList.contains('simple-accordion-remove')) return;
 			var row = event.target.closest('tr');
-			if (row) {
-				row.remove();
-			}
+			if (row) row.remove();
 		});
 	}());
 	</script>
@@ -244,48 +357,22 @@ function simple_accordion_render_admin_page() {
 }
 
 function simple_accordion_enqueue_frontend_assets() {
-	wp_enqueue_style(
-		'simple-accordion-frontend',
-		SIMPLE_ACCORDION_URL . 'assets/frontend.css',
-		array(),
-		SIMPLE_ACCORDION_VERSION
-	);
-
-	wp_enqueue_script(
-		'simple-accordion-frontend',
-		SIMPLE_ACCORDION_URL . 'assets/frontend.js',
-		array(),
-		SIMPLE_ACCORDION_VERSION,
-		true
-	);
+	wp_enqueue_style( 'simple-accordion-frontend', SIMPLE_ACCORDION_URL . 'assets/frontend.css', array(), SIMPLE_ACCORDION_VERSION );
+	wp_enqueue_script( 'simple-accordion-frontend', SIMPLE_ACCORDION_URL . 'assets/frontend.js', array(), SIMPLE_ACCORDION_VERSION, true );
 }
 
 function simple_accordion_shortcode( $atts ) {
-	$atts = shortcode_atts(
-		array(
-			'title' => '',
-		),
-		$atts,
-		'simple_accordion'
-	);
-
+	$atts = shortcode_atts( array( 'title' => '' ), $atts, 'simple_accordion' );
 	$items = simple_accordion_get_items();
-
-	if ( empty( $items ) ) {
-		return '';
-	}
-
+	if ( empty( $items ) ) return '';
 	simple_accordion_enqueue_frontend_assets();
-
 	$instance_id = wp_unique_id( 'simple-accordion-' );
-	$output      = '<section class="simple-accordion" id="' . esc_attr( $instance_id ) . '">';
-
+	$output = '<section class="simple-accordion" id="' . esc_attr( $instance_id ) . '">';
 	foreach ( $items as $index => $item ) {
-		$is_open  = ! empty( $item['open'] );
-		$item_id  = $instance_id . '-item-' . ( $index + 1 );
+		$is_open = ! empty( $item['open'] );
+		$item_id = $instance_id . '-item-' . ( $index + 1 );
 		$panel_id = $item_id . '-panel';
-		$classes  = 'simple-accordion__item' . ( $is_open ? ' is-open' : '' );
-
+		$classes = 'simple-accordion__item' . ( $is_open ? ' is-open' : '' );
 		$output .= '<div class="' . esc_attr( $classes ) . '">';
 		$output .= '<button id="' . esc_attr( $item_id ) . '" type="button" class="simple-accordion__button" aria-expanded="' . ( $is_open ? 'true' : 'false' ) . '" aria-controls="' . esc_attr( $panel_id ) . '">';
 		$output .= '<span class="simple-accordion__icon" aria-hidden="true">' . ( $is_open ? '−' : '+' ) . '</span>';
@@ -293,12 +380,8 @@ function simple_accordion_shortcode( $atts ) {
 		$output .= '</button>';
 		$output .= '<div id="' . esc_attr( $panel_id ) . '" class="simple-accordion__panel" role="region" aria-labelledby="' . esc_attr( $item_id ) . '"' . ( $is_open ? '' : ' hidden' ) . '>';
 		$output .= '<div class="simple-accordion__content">' . wp_kses_post( wpautop( $item['content'] ) ) . '</div>';
-		$output .= '</div>';
-		$output .= '</div>';
+		$output .= '</div></div>';
 	}
-
-	$output .= '</section>';
-
-	return $output;
+	return $output . '</section>';
 }
 add_shortcode( 'simple_accordion', 'simple_accordion_shortcode' );
