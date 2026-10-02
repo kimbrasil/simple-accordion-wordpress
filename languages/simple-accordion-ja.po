@@ -1,34 +1,77 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Simple Accordion 1.1.1\n"
+"Project-Id-Version: Simple Accordion\n"
+"POT-Creation-Date: 2026-10-02 09:03+0000\n"
+"PO-Revision-Date: 2026-10-02 00:00+0000\n"
 "Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Domain: simple-accordion\n"
 
-msgid "Simple Accordions"
-msgstr "シンプルアコーディオン"
+msgid "A lightweight, accessible accordion manager that supports multiple accordions and renders them with the [simple_accordion] shortcode."
+msgstr "複数のアコーディオンをサポートし、[simple_accordion] ショートコードで表示できる、軽量でアクセシブルなアコーディオン管理プラグインです。"
 
-msgid "Create separate accordions and place each one with its own shortcode."
-msgstr "独立したアコーディオンを作成し、それぞれ専用のショートコードで配置できます。"
-
-msgid "Create new"
-msgstr "新規作成"
-
-msgid "Save accordion"
-msgstr "アコーディオンを保存"
-
-msgid "Add item"
-msgstr "項目を追加"
-
-msgid "Remove"
-msgstr "削除"
-
-msgid "Initially open"
-msgstr "最初から開く"
+msgid "Accordion"
+msgstr "アコーディオン"
 
 msgid "Accordion saved."
 msgstr "アコーディオンを保存しました。"
 
+msgid "Accordion title"
+msgstr "アコーディオンのタイトル"
+
+msgid "Action"
+msgstr "操作"
+
+msgid "Add item"
+msgstr "項目を追加"
+
+msgid "Content"
+msgstr "コンテンツ"
+
+msgid "Create new"
+msgstr "新規作成"
+
+msgid "Create separate accordions and place each one with its own shortcode."
+msgstr "独立したアコーディオンを作成し、それぞれ専用のショートコードで配置できます。"
+
+msgid "Initially open"
+msgstr "最初から開く"
+
+msgid "kimbrasil"
+msgstr "kimbrasil"
+
+msgid "Open"
+msgstr "開く"
+
+msgid "Order"
+msgstr "順序"
+
+msgid "Remove"
+msgstr "削除"
+
+msgid "Save accordion"
+msgstr "アコーディオンを保存"
+
+msgid "Shortcode ID"
+msgstr "ショートコード ID"
+
 msgid "Shortcode:"
 msgstr "ショートコード:"
+
+msgid "Simple Accordion"
+msgstr "シンプルアコーディオン"
+
+msgid "Simple Accordions"
+msgstr "シンプルアコーディオン"
+
+msgid "Title"
+msgstr "タイトル"
+
+msgid "Use this ID in [simple_accordion id=\"your-id\"]."
+msgstr "[simple_accordion id=\"your-id\"] でこの ID を使用します。"
+
+msgid "You do not have permission to access this page."
+msgstr "このページにアクセスする権限がありません。"

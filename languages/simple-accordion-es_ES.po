@@ -1,34 +1,77 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Simple Accordion 1.1.1\n"
+"Project-Id-Version: Simple Accordion\n"
+"POT-Creation-Date: 2026-10-02 09:03+0000\n"
+"PO-Revision-Date: 2026-10-02 00:00+0000\n"
 "Language: es_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Domain: simple-accordion\n"
 
-msgid "Simple Accordions"
-msgstr "Acordeones simples"
+msgid "A lightweight, accessible accordion manager that supports multiple accordions and renders them with the [simple_accordion] shortcode."
+msgstr "Un gestor de acordeones ligero y accesible que admite varios acordeones y los muestra mediante el shortcode [simple_accordion]."
 
-msgid "Create separate accordions and place each one with its own shortcode."
-msgstr "Crea acordeones independientes y coloca cada uno con su propio shortcode."
-
-msgid "Create new"
-msgstr "Crear nuevo"
-
-msgid "Save accordion"
-msgstr "Guardar acordeón"
-
-msgid "Add item"
-msgstr "Añadir elemento"
-
-msgid "Remove"
-msgstr "Eliminar"
-
-msgid "Initially open"
-msgstr "Abierto inicialmente"
+msgid "Accordion"
+msgstr "Acordeón"
 
 msgid "Accordion saved."
 msgstr "Acordeón guardado."
 
+msgid "Accordion title"
+msgstr "Título del acordeón"
+
+msgid "Action"
+msgstr "Acción"
+
+msgid "Add item"
+msgstr "Añadir elemento"
+
+msgid "Content"
+msgstr "Contenido"
+
+msgid "Create new"
+msgstr "Crear nuevo"
+
+msgid "Create separate accordions and place each one with its own shortcode."
+msgstr "Crea acordeones independientes y coloca cada uno con su propio shortcode."
+
+msgid "Initially open"
+msgstr "Abierto inicialmente"
+
+msgid "kimbrasil"
+msgstr "kimbrasil"
+
+msgid "Open"
+msgstr "Abrir"
+
+msgid "Order"
+msgstr "Orden"
+
+msgid "Remove"
+msgstr "Eliminar"
+
+msgid "Save accordion"
+msgstr "Guardar acordeón"
+
+msgid "Shortcode ID"
+msgstr "ID del shortcode"
+
 msgid "Shortcode:"
 msgstr "Shortcode:"
+
+msgid "Simple Accordion"
+msgstr "Acordeón simple"
+
+msgid "Simple Accordions"
+msgstr "Acordeones simples"
+
+msgid "Title"
+msgstr "Título"
+
+msgid "Use this ID in [simple_accordion id=\"your-id\"]."
+msgstr "Usa este ID en [simple_accordion id=\"your-id\"]."
+
+msgid "You do not have permission to access this page."
+msgstr "No tienes permiso para acceder a esta página."

@@ -1,34 +1,77 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Simple Accordion 1.1.1\n"
+"Project-Id-Version: Simple Accordion\n"
+"POT-Creation-Date: 2026-10-02 09:03+0000\n"
+"PO-Revision-Date: 2026-10-02 00:00+0000\n"
 "Language: hi_IN\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Domain: simple-accordion\n"
 
-msgid "Simple Accordions"
-msgstr "सरल एकॉर्डियन"
+msgid "A lightweight, accessible accordion manager that supports multiple accordions and renders them with the [simple_accordion] shortcode."
+msgstr "एक हल्का और सुलभ एकॉर्डियन प्रबंधक, जो कई एकॉर्डियन का समर्थन करता है और उन्हें [simple_accordion] शॉर्टकोड से प्रदर्शित करता है।"
 
-msgid "Create separate accordions and place each one with its own shortcode."
-msgstr "अलग-अलग एकॉर्डियन बनाएं और प्रत्येक को उसके शॉर्टकोड से रखें।"
-
-msgid "Create new"
-msgstr "नया बनाएं"
-
-msgid "Save accordion"
-msgstr "एकॉर्डियन सहेजें"
-
-msgid "Add item"
-msgstr "आइटम जोड़ें"
-
-msgid "Remove"
-msgstr "हटाएं"
-
-msgid "Initially open"
-msgstr "शुरू में खुला"
+msgid "Accordion"
+msgstr "एकॉर्डियन"
 
 msgid "Accordion saved."
 msgstr "एकॉर्डियन सहेजा गया।"
 
+msgid "Accordion title"
+msgstr "एकॉर्डियन शीर्षक"
+
+msgid "Action"
+msgstr "कार्रवाई"
+
+msgid "Add item"
+msgstr "आइटम जोड़ें"
+
+msgid "Content"
+msgstr "सामग्री"
+
+msgid "Create new"
+msgstr "नया बनाएं"
+
+msgid "Create separate accordions and place each one with its own shortcode."
+msgstr "अलग-अलग एकॉर्डियन बनाएं और प्रत्येक को उसके शॉर्टकोड से रखें।"
+
+msgid "Initially open"
+msgstr "शुरू में खुला"
+
+msgid "kimbrasil"
+msgstr "kimbrasil"
+
+msgid "Open"
+msgstr "खोलें"
+
+msgid "Order"
+msgstr "क्रम"
+
+msgid "Remove"
+msgstr "हटाएं"
+
+msgid "Save accordion"
+msgstr "एकॉर्डियन सहेजें"
+
+msgid "Shortcode ID"
+msgstr "शॉर्टकोड आईडी"
+
 msgid "Shortcode:"
 msgstr "शॉर्टकोड:"
+
+msgid "Simple Accordion"
+msgstr "सरल एकॉर्डियन"
+
+msgid "Simple Accordions"
+msgstr "सरल एकॉर्डियन"
+
+msgid "Title"
+msgstr "शीर्षक"
+
+msgid "Use this ID in [simple_accordion id=\"your-id\"]."
+msgstr "[simple_accordion id=\"your-id\"] में इस आईडी का उपयोग करें।"
+
+msgid "You do not have permission to access this page."
+msgstr "आपको इस पृष्ठ तक पहुंचने की अनुमति नहीं है।"

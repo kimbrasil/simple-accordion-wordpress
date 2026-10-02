@@ -1,34 +1,77 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Simple Accordion 1.1.1\n"
+"Project-Id-Version: Simple Accordion\n"
+"POT-Creation-Date: 2026-10-02 09:03+0000\n"
+"PO-Revision-Date: 2026-10-02 00:00+0000\n"
 "Language: ur\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Domain: simple-accordion\n"
 
-msgid "Simple Accordions"
-msgstr "سادہ ایکارڈین"
+msgid "A lightweight, accessible accordion manager that supports multiple accordions and renders them with the [simple_accordion] shortcode."
+msgstr "ایک ہلکا پھلکا اور قابل رسائی ایکارڈین مینیجر جو متعدد ایکارڈینز کو سپورٹ کرتا ہے اور انہیں [simple_accordion] شارٹ کوڈ کے ذریعے دکھاتا ہے۔"
 
-msgid "Create separate accordions and place each one with its own shortcode."
-msgstr "الگ ایکارڈین بنائیں اور ہر ایک کو اپنے شارٹ کوڈ کے ساتھ رکھیں۔"
-
-msgid "Create new"
-msgstr "نیا بنائیں"
-
-msgid "Save accordion"
-msgstr "ایکارڈین محفوظ کریں"
-
-msgid "Add item"
-msgstr "آئٹم شامل کریں"
-
-msgid "Remove"
-msgstr "حذف کریں"
-
-msgid "Initially open"
-msgstr "ابتدائی طور پر کھلا"
+msgid "Accordion"
+msgstr "ایکارڈین"
 
 msgid "Accordion saved."
 msgstr "ایکارڈین محفوظ ہو گیا۔"
 
+msgid "Accordion title"
+msgstr "ایکارڈین کا عنوان"
+
+msgid "Action"
+msgstr "کارروائی"
+
+msgid "Add item"
+msgstr "آئٹم شامل کریں"
+
+msgid "Content"
+msgstr "مواد"
+
+msgid "Create new"
+msgstr "نیا بنائیں"
+
+msgid "Create separate accordions and place each one with its own shortcode."
+msgstr "الگ ایکارڈین بنائیں اور ہر ایک کو اپنے شارٹ کوڈ کے ساتھ رکھیں۔"
+
+msgid "Initially open"
+msgstr "ابتدائی طور پر کھلا"
+
+msgid "kimbrasil"
+msgstr "kimbrasil"
+
+msgid "Open"
+msgstr "کھولیں"
+
+msgid "Order"
+msgstr "ترتیب"
+
+msgid "Remove"
+msgstr "حذف کریں"
+
+msgid "Save accordion"
+msgstr "ایکارڈین محفوظ کریں"
+
+msgid "Shortcode ID"
+msgstr "شارٹ کوڈ آئی ڈی"
+
 msgid "Shortcode:"
 msgstr "شارٹ کوڈ:"
+
+msgid "Simple Accordion"
+msgstr "سادہ ایکارڈین"
+
+msgid "Simple Accordions"
+msgstr "سادہ ایکارڈینز"
+
+msgid "Title"
+msgstr "عنوان"
+
+msgid "Use this ID in [simple_accordion id=\"your-id\"]."
+msgstr "یہ آئی ڈی [simple_accordion id=\"your-id\"] میں استعمال کریں۔"
+
+msgid "You do not have permission to access this page."
+msgstr "آپ کو اس صفحے تک رسائی کی اجازت نہیں ہے۔"

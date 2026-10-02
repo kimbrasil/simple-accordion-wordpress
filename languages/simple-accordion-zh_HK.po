@@ -1,34 +1,77 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Simple Accordion 1.1.1\n"
+"Project-Id-Version: Simple Accordion\n"
+"POT-Creation-Date: 2026-10-02 09:03+0000\n"
+"PO-Revision-Date: 2026-10-02 00:00+0000\n"
 "Language: zh_HK\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Domain: simple-accordion\n"
 
-msgid "Simple Accordions"
-msgstr "簡易手風琴"
+msgid "A lightweight, accessible accordion manager that supports multiple accordions and renders them with the [simple_accordion] shortcode."
+msgstr "一個輕量且易於使用的手風琴管理器，支援多個手風琴，並使用 [simple_accordion] 短代碼顯示。"
 
-msgid "Create separate accordions and place each one with its own shortcode."
-msgstr "建立獨立的手風琴，並使用各自的短代碼插入。"
-
-msgid "Create new"
-msgstr "建立新的"
-
-msgid "Save accordion"
-msgstr "儲存手風琴"
-
-msgid "Add item"
-msgstr "新增項目"
-
-msgid "Remove"
-msgstr "移除"
-
-msgid "Initially open"
-msgstr "預設開啟"
+msgid "Accordion"
+msgstr "手風琴"
 
 msgid "Accordion saved."
 msgstr "手風琴已儲存。"
 
+msgid "Accordion title"
+msgstr "手風琴標題"
+
+msgid "Action"
+msgstr "操作"
+
+msgid "Add item"
+msgstr "新增項目"
+
+msgid "Content"
+msgstr "內容"
+
+msgid "Create new"
+msgstr "建立新的"
+
+msgid "Create separate accordions and place each one with its own shortcode."
+msgstr "建立獨立的手風琴，並使用各自的短代碼插入。"
+
+msgid "Initially open"
+msgstr "預設開啟"
+
+msgid "kimbrasil"
+msgstr "kimbrasil"
+
+msgid "Open"
+msgstr "開啟"
+
+msgid "Order"
+msgstr "順序"
+
+msgid "Remove"
+msgstr "移除"
+
+msgid "Save accordion"
+msgstr "儲存手風琴"
+
+msgid "Shortcode ID"
+msgstr "短代碼 ID"
+
 msgid "Shortcode:"
 msgstr "短代碼："
+
+msgid "Simple Accordion"
+msgstr "簡易手風琴"
+
+msgid "Simple Accordions"
+msgstr "簡易手風琴"
+
+msgid "Title"
+msgstr "標題"
+
+msgid "Use this ID in [simple_accordion id=\"your-id\"]."
+msgstr "在 [simple_accordion id=\"your-id\"] 中使用此 ID。"
+
+msgid "You do not have permission to access this page."
+msgstr "您沒有權限存取此頁面。"

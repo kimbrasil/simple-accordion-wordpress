@@ -1,34 +1,77 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Simple Accordion 1.1.1\n"
+"Project-Id-Version: Simple Accordion\n"
+"POT-Creation-Date: 2026-10-02 09:03+0000\n"
+"PO-Revision-Date: 2026-10-02 00:00+0000\n"
 "Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Domain: simple-accordion\n"
 
-msgid "Simple Accordions"
-msgstr "简单折叠面板"
+msgid "A lightweight, accessible accordion manager that supports multiple accordions and renders them with the [simple_accordion] shortcode."
+msgstr "一个轻量、易访问的折叠面板管理器，支持多个折叠面板，并通过 [simple_accordion] 短代码显示。"
 
-msgid "Create separate accordions and place each one with its own shortcode."
-msgstr "创建独立的折叠面板，并使用各自的短代码放置它们。"
-
-msgid "Create new"
-msgstr "创建新的"
-
-msgid "Save accordion"
-msgstr "保存折叠面板"
-
-msgid "Add item"
-msgstr "添加项目"
-
-msgid "Remove"
-msgstr "移除"
-
-msgid "Initially open"
-msgstr "默认展开"
+msgid "Accordion"
+msgstr "折叠面板"
 
 msgid "Accordion saved."
 msgstr "折叠面板已保存。"
 
+msgid "Accordion title"
+msgstr "折叠面板标题"
+
+msgid "Action"
+msgstr "操作"
+
+msgid "Add item"
+msgstr "添加项目"
+
+msgid "Content"
+msgstr "内容"
+
+msgid "Create new"
+msgstr "创建新的"
+
+msgid "Create separate accordions and place each one with its own shortcode."
+msgstr "创建独立的折叠面板，并使用各自的短代码放置它们。"
+
+msgid "Initially open"
+msgstr "默认展开"
+
+msgid "kimbrasil"
+msgstr "kimbrasil"
+
+msgid "Open"
+msgstr "展开"
+
+msgid "Order"
+msgstr "顺序"
+
+msgid "Remove"
+msgstr "移除"
+
+msgid "Save accordion"
+msgstr "保存折叠面板"
+
+msgid "Shortcode ID"
+msgstr "短代码 ID"
+
 msgid "Shortcode:"
 msgstr "短代码："
+
+msgid "Simple Accordion"
+msgstr "简单折叠面板"
+
+msgid "Simple Accordions"
+msgstr "简单折叠面板"
+
+msgid "Title"
+msgstr "标题"
+
+msgid "Use this ID in [simple_accordion id=\"your-id\"]."
+msgstr "在 [simple_accordion id=\"your-id\"] 中使用此 ID。"
+
+msgid "You do not have permission to access this page."
+msgstr "您没有权限访问此页面。"
