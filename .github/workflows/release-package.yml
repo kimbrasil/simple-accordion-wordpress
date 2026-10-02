@@ -1,0 +1,129 @@
+name: Build WordPress release package
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
+      - name: Validate plugin syntax
+        run: php -l simple-accordion.php
+
+      - name: Compile and validate translations
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          po_files=(languages/simple-accordion-*.po)
+          if [ ${#po_files[@]} -eq 0 ]; then
+            echo "No translation catalogs found."
+            exit 1
+          fi
+
+          for po_file in "${po_files[@]}"; do
+            mo_file="${po_file%.po}.mo"
+            echo "Compiling ${po_file} -> ${mo_file}"
+            msgfmt --check --output-file="${mo_file}" "${po_file}"
+            if [ ! -s "${mo_file}" ]; then
+              echo "Compiled MO file is empty: ${mo_file}"
+              exit 1
+            fi
+          done
+
+      - name: Build installable ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          rm -rf package simple-accordion.zip
+          mkdir -p package/simple-accordion
+          cp simple-accordion.php package/simple-accordion/
+          cp -R assets package/simple-accordion/
+          cp -R languages package/simple-accordion/
+
+          (
+            cd package
+            zip -r ../simple-accordion.zip simple-accordion
+          )
+
+      - name: Validate ZIP layout and required files
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob dotglob
+
+          if [ ! -f simple-accordion.zip ]; then
+            echo "Package was not generated."
+            exit 1
+          fi
+
+          temp_dir="$(mktemp -d)"
+          unzip -q simple-accordion.zip -d "${temp_dir}"
+
+          top_level_entries=("${temp_dir}"/*)
+          if [ ${#top_level_entries[@]} -ne 1 ] || [ "$(basename "${top_level_entries[0]}")" != "simple-accordion" ]; then
+            echo "ZIP must contain a single top-level simple-accordion/ directory."
+            exit 1
+          fi
+
+          required_paths=(
+            "${temp_dir}/simple-accordion/simple-accordion.php"
+            "${temp_dir}/simple-accordion/assets"
+            "${temp_dir}/simple-accordion/languages"
+          )
+
+          for required_path in "${required_paths[@]}"; do
+            if [ ! -e "${required_path}" ]; then
+              echo "Missing required package path: ${required_path#${temp_dir}/}"
+              exit 1
+            fi
+          done
+
+          for po_file in languages/simple-accordion-*.po; do
+            po_base="$(basename "${po_file}")"
+            mo_base="${po_base%.po}.mo"
+            packaged_po="${temp_dir}/simple-accordion/languages/${po_base}"
+            packaged_mo="${temp_dir}/simple-accordion/languages/${mo_base}"
+
+            if [ ! -f "${packaged_po}" ]; then
+              echo "Missing packaged PO file: ${po_base}"
+              exit 1
+            fi
+            if [ ! -s "${packaged_mo}" ]; then
+              echo "Missing or empty packaged MO file: ${mo_base}"
+              exit 1
+            fi
+          done
+
+          if find "${temp_dir}/simple-accordion" -type d \( -name ".git" -o -name ".github" \) | grep -q .; then
+            echo "Package includes forbidden repository metadata directories."
+            exit 1
+          fi
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: simple-accordion
+          path: simple-accordion.zip
+          if-no-files-found: error
+
+      - name: Publish GitHub Release asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: simple-accordion.zip

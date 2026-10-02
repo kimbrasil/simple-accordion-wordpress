@@ -135,6 +135,15 @@ Keep customizations in a child theme or site-specific plugin rather than editing
 
 The plugin includes GitHub-based update checking. Releases should include a ZIP asset named `simple-accordion.zip`.
 
+### Creating a release package
+
+1. Ensure `simple-accordion.php` has the intended version.
+2. Create and push a tag in `vX.Y.Z` format (example: `v1.1.1`).
+3. GitHub Actions builds `simple-accordion.zip`, validates translations and package layout, and attaches the ZIP to the GitHub Release for that tag.
+4. Download `simple-accordion.zip` from the Release assets and install it through **Plugins → Add New Plugin → Upload Plugin**.
+
+The repository source is flat at the root for development, but the release ZIP is installable and contains a single top-level `simple-accordion/` folder with plugin files (`simple-accordion.php`, `assets/`, and `languages/` with `.po` and compiled `.mo` catalogs).
+
 ## Security
 
 Administrative changes require the `manage_options` capability and a WordPress nonce. Titles, IDs, and output attributes are escaped, while panel content is filtered with WordPress safe HTML handling.
