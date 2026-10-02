@@ -8,6 +8,7 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Update URI: https://github.com/kimbrasil/simple-accordion-wordpress
  * Text Domain: simple-accordion
+ * Domain Path: /languages
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -22,6 +23,11 @@ define( 'SIMPLE_ACCORDION_OPTION', 'simple_accordion_items' );
 define( 'SIMPLE_ACCORDION_GITHUB_REPOSITORY', 'kimbrasil/simple-accordion-wordpress' );
 define( 'SIMPLE_ACCORDION_GITHUB_API_URL', 'https://api.github.com/repos/' . SIMPLE_ACCORDION_GITHUB_REPOSITORY . '/releases/latest' );
 define( 'SIMPLE_ACCORDION_UPDATE_URI', 'https://github.com/' . SIMPLE_ACCORDION_GITHUB_REPOSITORY );
+
+function simple_accordion_load_textdomain() {
+	load_plugin_textdomain( 'simple-accordion', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
+add_action( 'plugins_loaded', 'simple_accordion_load_textdomain' );
 
 function simple_accordion_normalize_items( $items ) {
 	if ( ! is_array( $items ) ) {
