@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple Accordion
  * Description: A lightweight, accessible accordion manager that supports multiple accordions and renders them with the [simple_accordion] shortcode.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: kimbrasil
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SIMPLE_ACCORDION_VERSION', '1.1.0' );
+define( 'SIMPLE_ACCORDION_VERSION', '1.1.1' );
 define( 'SIMPLE_ACCORDION_FILE', __FILE__ );
 define( 'SIMPLE_ACCORDION_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SIMPLE_ACCORDION_URL', plugin_dir_url( __FILE__ ) );
@@ -37,8 +37,8 @@ function simple_accordion_normalize_items( $items ) {
 					}
 
 					return array(
-						'title'   => isset( $item['title'] ) ? sanitize_text_field( (string) $item['title'] ) : '',
-						'content' => isset( $item['content'] ) ? wp_kses_post( (string) $item['content'] ) : '',
+						'title'   => isset( $item['title'] ) ? sanitize_text_field( $item['title'] ) : '',
+						'content' => isset( $item['content'] ) ? wp_kses_post( $item['content'] ) : '',
 						'open'    => ! empty( $item['open'] ),
 						'order'   => isset( $item['order'] ) ? max( 1, absint( $item['order'] ) ) : 1,
 					);
@@ -51,19 +51,12 @@ function simple_accordion_normalize_items( $items ) {
 		)
 	);
 
-	usort(
-		$items,
-		static function ( $a, $b ) {
-			return $a['order'] <=> $b['order'];
-		}
-	);
-
+	usort( $items, static function ( $a, $b ) { return $a['order'] <=> $b['order']; } );
 	return $items;
 }
 
 function simple_accordion_get_accordions() {
 	$saved = get_option( SIMPLE_ACCORDION_OPTION, array() );
-
 	if ( ! is_array( $saved ) ) {
 		$saved = array();
 	}
@@ -78,12 +71,10 @@ function simple_accordion_get_accordions() {
 		if ( ! is_array( $accordion ) ) {
 			continue;
 		}
-
 		$id = sanitize_key( $id );
 		if ( '' === $id ) {
 			continue;
 		}
-
 		$accordions[ $id ] = array(
 			'title' => isset( $accordion['title'] ) ? sanitize_text_field( $accordion['title'] ) : ucfirst( str_replace( '-', ' ', $id ) ),
 			'items' => simple_accordion_normalize_items( isset( $accordion['items'] ) ? $accordion['items'] : array() ),
@@ -93,142 +84,14 @@ function simple_accordion_get_accordions() {
 	if ( empty( $accordions ) ) {
 		$accordions['default'] = array( 'title' => 'Default Accordion', 'items' => array() );
 	}
-
 	return $accordions;
 }
 
 function simple_accordion_get_items( $accordion_id = 'default' ) {
-	$accordions   = simple_accordion_get_accordions();
+	$accordions = simple_accordion_get_accordions();
 	$accordion_id = sanitize_key( $accordion_id );
-
 	return isset( $accordions[ $accordion_id ] ) ? $accordions[ $accordion_id ]['items'] : array();
 }
-
-function simple_accordion_validate_update_url( $url ) {
-	$url = is_string( $url ) ? esc_url_raw( $url ) : '';
-	if ( '' === $url || ! wp_http_validate_url( $url ) ) {
-		return false;
-	}
-
-	$parts = wp_parse_url( $url );
-	$host  = isset( $parts['host'] ) ? strtolower( $parts['host'] ) : '';
-	if ( 'https' !== strtolower( isset( $parts['scheme'] ) ? $parts['scheme'] : '' ) ) {
-		return false;
-	}
-
-	$allowed_hosts = array( 'github.com', 'objects.githubusercontent.com', 'github-releases.githubusercontent.com' );
-	return in_array( $host, $allowed_hosts, true ) ? $url : false;
-}
-
-function simple_accordion_get_release_package( $release ) {
-	if ( ! is_object( $release ) || empty( $release->assets ) || ! is_array( $release->assets ) ) {
-		return '';
-	}
-
-	foreach ( $release->assets as $asset ) {
-		if ( ! is_object( $asset ) || empty( $asset->name ) || 'simple-accordion.zip' !== $asset->name ) {
-			continue;
-		}
-
-		$package = simple_accordion_validate_update_url( isset( $asset->browser_download_url ) ? $asset->browser_download_url : '' );
-		if ( false !== $package ) {
-			return $package;
-		}
-	}
-
-	return '';
-}
-
-function simple_accordion_get_latest_release() {
-	$cached = get_site_transient( 'simple_accordion_latest_release' );
-	if ( false !== $cached && is_object( $cached ) ) {
-		return $cached;
-	}
-
-	$response = wp_safe_remote_get(
-		SIMPLE_ACCORDION_GITHUB_API_URL,
-		array(
-			'timeout'             => 10,
-			'limit_response_size' => 1024 * 1024,
-			'headers'             => array(
-				'Accept'     => 'application/vnd.github+json',
-				'User-Agent' => 'WordPress Simple Accordion updater',
-			),
-		)
-	);
-
-	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		return null;
-	}
-
-	$release = json_decode( wp_remote_retrieve_body( $response ) );
-	if ( ! is_object( $release ) || empty( $release->tag_name ) || ! is_string( $release->tag_name ) ) {
-		return null;
-	}
-
-	set_site_transient( 'simple_accordion_latest_release', $release, 12 * HOUR_IN_SECONDS );
-	return $release;
-}
-
-function simple_accordion_check_for_updates( $transient ) {
-	if ( ! is_object( $transient ) || empty( $transient->checked ) ) {
-		return $transient;
-	}
-
-	$release = simple_accordion_get_latest_release();
-	if ( ! $release ) {
-		return $transient;
-	}
-
-	$version = ltrim( sanitize_text_field( $release->tag_name ), 'vV' );
-	if ( ! preg_match( '/^\d+(?:\.\d+){0,2}(?:[-+][0-9A-Za-z.-]+)?$/', $version ) || version_compare( $version, SIMPLE_ACCORDION_VERSION, '<=' ) ) {
-		return $transient;
-	}
-
-	$package = simple_accordion_get_release_package( $release );
-	if ( '' === $package ) {
-		return $transient;
-	}
-
-	$transient->response[ SIMPLE_ACCORDION_BASENAME ] = (object) array(
-		'slug'        => 'simple-accordion',
-		'plugin'      => SIMPLE_ACCORDION_BASENAME,
-		'new_version' => $version,
-		'url'         => SIMPLE_ACCORDION_UPDATE_URI,
-		'package'     => $package,
-	);
-
-	return $transient;
-}
-add_filter( 'site_transient_update_plugins', 'simple_accordion_check_for_updates' );
-
-function simple_accordion_plugin_info( $result, $action, $args ) {
-	if ( 'plugin_information' !== $action || ! is_object( $args ) || empty( $args->slug ) || 'simple-accordion' !== $args->slug ) {
-		return $result;
-	}
-
-	$release = simple_accordion_get_latest_release();
-	if ( ! $release ) {
-		return $result;
-	}
-
-	$version = ltrim( sanitize_text_field( $release->tag_name ), 'vV' );
-	$package = simple_accordion_get_release_package( $release );
-
-	return (object) array(
-		'name'          => 'Simple Accordion',
-		'slug'          => 'simple-accordion',
-		'version'       => $version,
-		'author'        => '<a href="https://github.com/kimbrasil">kimbrasil</a>',
-		'homepage'      => SIMPLE_ACCORDION_UPDATE_URI,
-		'download_link' => $package,
-		'requires'      => '5.8',
-		'tested'        => '6.8',
-		'sections'      => array(),
-		'description'   => ! empty( $release->body ) ? wpautop( wp_kses_post( $release->body ) ) : 'Simple Accordion plugin updates from GitHub.',
-	);
-}
-add_filter( 'plugins_api_result', 'simple_accordion_plugin_info', 10, 3 );
 
 function simple_accordion_admin_menu() {
 	add_menu_page( __( 'Simple Accordions', 'simple-accordion' ), __( 'Simple Accordions', 'simple-accordion' ), 'manage_options', 'simple-accordion', 'simple_accordion_render_admin_page', 'dashicons-menu-alt3', '26.5' );
@@ -248,34 +111,33 @@ function simple_accordion_save_items() {
 	}
 
 	check_admin_referer( 'simple_accordion_save_items', 'simple_accordion_nonce' );
-
-	$accordion_id = isset( $_POST['accordion_id'] ) ? sanitize_key( wp_unslash( $_POST['accordion_id'] ) ) : 'default';
+	$accordion_id = isset( $_POST['accordion_id'] ) ? sanitize_key( wp_unslash( $_POST['accordion_id'] ) ) : '';
 	$accordion_id = '' !== $accordion_id ? $accordion_id : 'default';
-	$title        = isset( $_POST['accordion_title'] ) ? sanitize_text_field( wp_unslash( $_POST['accordion_title'] ) ) : ucfirst( str_replace( '-', ' ', $accordion_id ) );
-	$raw_items    = isset( $_POST['items'] ) && is_array( $_POST['items'] ) ? wp_unslash( $_POST['items'] ) : array();
-	$items        = array();
+	$title = isset( $_POST['accordion_title'] ) ? sanitize_text_field( wp_unslash( $_POST['accordion_title'] ) ) : '';
+	$raw_items = isset( $_POST['items'] ) && is_array( $_POST['items'] ) ? wp_unslash( $_POST['items'] ) : array();
+	$items = array();
 
 	foreach ( $raw_items as $raw_item ) {
 		if ( ! is_array( $raw_item ) ) {
 			continue;
 		}
-
 		$item = array(
 			'title'   => isset( $raw_item['title'] ) ? sanitize_text_field( $raw_item['title'] ) : '',
 			'content' => isset( $raw_item['content'] ) ? wp_kses_post( $raw_item['content'] ) : '',
 			'order'   => isset( $raw_item['order'] ) ? max( 1, absint( $raw_item['order'] ) ) : count( $items ) + 1,
 			'open'    => ! empty( $raw_item['open'] ),
 		);
-
 		if ( '' !== trim( $item['title'] ) || '' !== trim( wp_strip_all_tags( $item['content'] ) ) ) {
 			$items[] = $item;
 		}
 	}
 
 	$accordions = simple_accordion_get_accordions();
-	$accordions[ $accordion_id ] = array( 'title' => '' !== $title ? $title : ucfirst( str_replace( '-', ' ', $accordion_id ) ), 'items' => simple_accordion_normalize_items( $items ) );
+	$accordions[ $accordion_id ] = array(
+		'title' => '' !== $title ? $title : ucfirst( str_replace( '-', ' ', $accordion_id ) ),
+		'items' => simple_accordion_normalize_items( $items ),
+	);
 	update_option( SIMPLE_ACCORDION_OPTION, $accordions, false );
-
 	add_settings_error( 'simple_accordion_messages', 'simple_accordion_saved', __( 'Accordion saved.', 'simple-accordion' ), 'updated' );
 }
 
@@ -285,10 +147,11 @@ function simple_accordion_render_admin_page() {
 	}
 
 	simple_accordion_save_items();
-	$accordions   = simple_accordion_get_accordions();
-	$selected_id  = isset( $_GET['accordion'] ) ? sanitize_key( wp_unslash( $_GET['accordion'] ) ) : ( isset( $_POST['accordion_id'] ) ? sanitize_key( wp_unslash( $_POST['accordion_id'] ) ) : key( $accordions ) );
-	$selected_id  = isset( $accordions[ $selected_id ] ) ? $selected_id : key( $accordions );
-	$selected     = $accordions[ $selected_id ];
+	$accordions = simple_accordion_get_accordions();
+	$request_id = isset( $_GET['accordion'] ) ? sanitize_key( wp_unslash( $_GET['accordion'] ) ) : '';
+	$is_new = 'new-accordion' === $request_id;
+	$selected_id = $is_new ? 'new-accordion' : ( $request_id && isset( $accordions[ $request_id ] ) ? $request_id : (string) key( $accordions ) );
+	$selected = $is_new ? array( 'title' => '', 'items' => array() ) : $accordions[ $selected_id ];
 	?>
 	<div class="wrap simple-accordion-admin">
 		<h1><?php echo esc_html__( 'Simple Accordions', 'simple-accordion' ); ?></h1>
@@ -356,7 +219,7 @@ function simple_accordion_enqueue_frontend_assets() {
 
 function simple_accordion_shortcode( $atts ) {
 	$atts = shortcode_atts( array( 'id' => 'default', 'title' => '' ), $atts, 'simple_accordion' );
-	$id   = sanitize_key( $atts['id'] );
+	$id = sanitize_key( $atts['id'] );
 	$items = simple_accordion_get_items( $id );
 	if ( empty( $items ) ) {
 		return '';
@@ -364,21 +227,19 @@ function simple_accordion_shortcode( $atts ) {
 
 	simple_accordion_enqueue_frontend_assets();
 	$instance_id = wp_unique_id( 'simple-accordion-' );
-	$output      = '<section class="simple-accordion" id="' . esc_attr( $instance_id ) . '" data-accordion-id="' . esc_attr( $id ) . '">';
+	$output = '<section class="simple-accordion" id="' . esc_attr( $instance_id ) . '" data-accordion-id="' . esc_attr( $id ) . '">';
 	if ( '' !== trim( $atts['title'] ) ) {
 		$output .= '<h2 class="simple-accordion__title">' . esc_html( $atts['title'] ) . '</h2>';
 	}
 
 	foreach ( $items as $index => $item ) {
-		$is_open  = ! empty( $item['open'] );
-		$item_id  = $instance_id . '-item-' . ( $index + 1 );
+		$is_open = ! empty( $item['open'] );
+		$item_id = $instance_id . '-item-' . ( $index + 1 );
 		$panel_id = $item_id . '-panel';
-		$classes  = 'simple-accordion__item' . ( $is_open ? ' is-open' : '' );
-		$output  .= '<div class="' . esc_attr( $classes ) . '">';
-		$output  .= '<button id="' . esc_attr( $item_id ) . '" type="button" class="simple-accordion__button" aria-expanded="' . ( $is_open ? 'true' : 'false' ) . '" aria-controls="' . esc_attr( $panel_id ) . '">';
-		$output  .= '<span class="simple-accordion__icon" aria-hidden="true">' . ( $is_open ? '−' : '+' ) . '</span>';
-		$output  .= '<span class="simple-accordion__label">' . esc_html( $item['title'] ) . '</span></button>';
-		$output  .= '<div id="' . esc_attr( $panel_id ) . '" class="simple-accordion__panel" role="region" aria-labelledby="' . esc_attr( $item_id ) . '"' . ( $is_open ? '' : ' hidden' ) . '><div class="simple-accordion__content">' . wp_kses_post( wpautop( $item['content'] ) ) . '</div></div></div>';
+		$output .= '<div class="simple-accordion__item' . ( $is_open ? ' is-open' : '' ) . '">';
+		$output .= '<button id="' . esc_attr( $item_id ) . '" type="button" class="simple-accordion__button" aria-expanded="' . ( $is_open ? 'true' : 'false' ) . '" aria-controls="' . esc_attr( $panel_id ) . '">';
+		$output .= '<span class="simple-accordion__icon" aria-hidden="true">' . ( $is_open ? '−' : '+' ) . '</span><span class="simple-accordion__label">' . esc_html( $item['title'] ) . '</span></button>';
+		$output .= '<div id="' . esc_attr( $panel_id ) . '" class="simple-accordion__panel" role="region" aria-labelledby="' . esc_attr( $item_id ) . '"' . ( $is_open ? '' : ' hidden' ) . '><div class="simple-accordion__content">' . wp_kses_post( wpautop( $item['content'] ) ) . '</div></div></div>';
 	}
 
 	return $output . '</section>';
