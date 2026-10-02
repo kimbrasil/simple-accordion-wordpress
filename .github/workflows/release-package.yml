@@ -1,0 +1,114 @@
+name: release-package
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install gettext
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gettext
+
+      - name: Validate PHP syntax
+        run: php -l simple-accordion.php
+
+      - name: Compile and validate translations
+        run: |
+          shopt -s nullglob
+          po_files=(languages/*.po)
+          if [ ${#po_files[@]} -eq 0 ]; then
+            echo "No .po files found in languages/."
+            exit 1
+          fi
+
+          for po in "${po_files[@]}"; do
+            mo="${po%.po}.mo"
+            msgfmt --check --output-file="$mo" "$po"
+            if [ ! -s "$mo" ]; then
+              echo "Missing or empty compiled catalog: $mo"
+              exit 1
+            fi
+          done
+
+          for po in "${po_files[@]}"; do
+            mo="${po%.po}.mo"
+            if [ ! -s "$mo" ]; then
+              echo "Missing or empty matching catalog: $mo"
+              exit 1
+            fi
+          done
+
+      - name: Build installable ZIP
+        run: |
+          rm -rf dist
+          mkdir -p dist/simple-accordion
+          cp -R assets languages simple-accordion.php README.md LICENSE dist/simple-accordion/
+
+          for po in dist/simple-accordion/languages/*.po; do
+            mo="${po%.po}.mo"
+            if [ ! -s "$mo" ]; then
+              echo "Packaged .mo missing or empty for: $po"
+              exit 1
+            fi
+          done
+
+          (
+            cd dist
+            zip -rq simple-accordion.zip simple-accordion
+          )
+
+      - name: Verify package layout
+        run: |
+          test -f dist/simple-accordion.zip
+          first_entry="$(unzip -Z1 dist/simple-accordion.zip | awk 'NR==1 { print; exit }')"
+          case "$first_entry" in
+            simple-accordion/*) ;;
+            *)
+              echo "ZIP must have top-level simple-accordion/ folder"
+              exit 1
+              ;;
+          esac
+
+          mapfile -t po_entries < <(unzip -Z1 dist/simple-accordion.zip 'simple-accordion/languages/*.po')
+          if [ ${#po_entries[@]} -eq 0 ]; then
+            echo "No .po files found in packaged languages directory"
+            exit 1
+          fi
+
+          for po_entry in "${po_entries[@]}"; do
+            mo_entry="${po_entry%.po}.mo"
+            if ! unzip -Z1 dist/simple-accordion.zip "$mo_entry" >/dev/null; then
+              echo "Missing matching .mo in ZIP: $mo_entry"
+              exit 1
+            fi
+            size="$(unzip -l dist/simple-accordion.zip "$mo_entry" | awk 'NR==4 {print $1}')"
+            if [ -z "$size" ] || [ "$size" -le 0 ]; then
+              echo "Matching .mo is empty in ZIP: $mo_entry"
+              exit 1
+            fi
+          done
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: simple-accordion
+          path: dist/simple-accordion.zip
+
+      - name: Publish release asset
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/simple-accordion.zip
